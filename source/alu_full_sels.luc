@@ -1,0 +1,73 @@
+module alu_full_sels (
+
+    input alufn,
+    //ASEL INPUTS
+    input asel,
+    input ox0,
+    input ox1,
+    input ox4,
+    input c,
+    //BSEL INPUTS
+    input bsel,
+    input ox5,
+    input ox6,
+    //WDSEL INPUTS
+    input wdsel,
+    input obstacle_data,
+    //ALU out
+    output wdsel_out[16]
+    
+  ) {
+  alu bitalu;
+  
+  sig asel_out;
+  sig bsel_out;
+  sig alu_out[16];
+  
+  always {
+    
+    //ASEL MULTIPLEXER
+    case(asel){
+      2b00:
+        asel_out = ox0;
+      2b01:
+        asel_out = ox1;
+      2b10:
+        asel_out = ox4;
+      2b11:
+        asel_out = c;
+      default:
+        asel_out = b00;
+    }
+    
+    //BSEL MULTIPLEXER
+    case(bsel){
+      2b00:
+        bsel_out = c;
+      2b01:
+        bsel_out = b00;
+      2b10:
+        bsel_out = ox5;
+      2b11:
+        bsel_out = ox6;
+      default:
+        bsel_out = b00;
+    }
+    
+    //ALU INPUT OUTPUTS
+    bitalu.alufn_signal = alufn;
+    bitalu.a = asel_out;
+    bitalu.b = bsel_out;
+    alu_out = bitalu.out;
+   
+    //WDSEL MULTIPLEXER
+    case(wdsel){
+      2b00:
+        wdsel_out = alu_out;
+      2b01:
+        wdsel_out = obstacle_data;
+      default:
+        wdsel_out = b0;
+    }
+  }
+}

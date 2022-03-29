@@ -1,0 +1,74 @@
+module fsm (
+    input clk,  // clock
+    input rst,  // reset
+    
+    input left[1],
+    input right[1],
+    
+    input dataOutA[16],
+    input ox4[4],
+    input ox7[2],
+    
+    output write_enable[1],
+    output ox0_out[10],
+    output ox1_out[4],
+    output ox4_out[4],
+    
+    output ox2_out[2],
+    output c,
+    output asel,
+    output bsel,
+    output wdsel,
+    output alufn,
+    output regID
+  ) {
+  
+  const SLOWCLOCK_SIZE = 27;
+  counter slowClock(#SIZE(SLOWCLOCK_SIZE), .clk(clk), .rst(rst));
+  edge_detector slowClockEdge(#RISE(1), #FALL(0), .clk(clk));
+  
+  fsm controller(.clk(clk), .rst(rst)) = {S0, S1, S2, S3, S4};
+  
+  sig ox_0[10];
+  sig ox_1[4];
+  sig ox_2[2];
+  
+  sig ox_4[4];
+
+  always {
+    slowClockEdge.in = slowClock.value[SLOWCLOCK_SIZE-1];
+    
+    //Decode DataGroupA
+    ox_0 = dataOutA[9:0];
+    ox_1 = dataOutA[13:10];
+    ox_2 = dataOutA[15:14];
+       
+    if(slowClockEdge.out == 1b1){
+    
+      case(controller.q){
+      
+        //Set Score to 0
+        controller.S0:
+        
+          write_enable = b1;
+          
+          ox0_out = 10b0;
+          ox1_out = ox_1;
+          ox2_out = b00;
+          ox4_out = ox4;
+          
+          c = 1b0;
+          
+          asel = b00;
+          bsel = b01;
+          wdsel = b00;
+          alufn = b000000;
+          
+          regID = b0000;
+        
+      }
+      
+    }
+    
+  }
+}
