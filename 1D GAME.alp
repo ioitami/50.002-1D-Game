@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="1D GAME" board="Alchitry Au" language="Lucid" version="3">
   <files>
-    <src>randomgen.luc</src>
-    <src>pn_gen.luc</src>
-    <component>decoder.luc</component>
-    <src>regfile.luc</src>
-    <component>edge_detector.luc</component>
-    <component>button_conditioner.luc</component>
-    <src>adder.luc</src>
-    <component>simple_ram.v</component>
-    <src>boolean.luc</src>
-    <src>fsm_game.luc</src>
     <src>obstacle_library.luc</src>
+    <src>randomgen.luc</src>
+    <component>decoder.luc</component>
+    <src>adder.luc</src>
+    <src>boolean.luc</src>
+    <src top="true">au_top.luc</src>
+    <component>edge_detector.luc</component>
+    <src>shifter.luc</src>
+    <component>button_conditioner.luc</component>
+    <component>simple_ram.v</component>
     <component>counter.luc</component>
     <component>simple_dual_ram.v</component>
-    <component>reset_conditioner.luc</component>
-    <src>alu_full_sels.luc</src>
-    <src>compare.luc</src>
-    <src>shifter.luc</src>
     <src>alu.luc</src>
+    <src>fsm_game.luc</src>
+    <component>reset_conditioner.luc</component>
+    <component>pn_gen.luc</component>
+    <src>compare.luc</src>
+    <src>alu_full_sels.luc</src>
     <component>pipeline.luc</component>
-    <src top="true">au_top.luc</src>
-    <constraint>custom.xdc</constraint>
+    <src>regfile.luc</src>
     <constraint>custom.acf</constraint>
+    <constraint>custom.xdc</constraint>
   </files>
 </project>
