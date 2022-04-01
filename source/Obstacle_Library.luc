@@ -1,0 +1,65 @@
+module obstacle_library (
+    
+    input ran_num[2],
+    input ox4[4],
+    
+    output display[8],
+    output dataBOut[12],
+    output y_out[8]
+  ) {
+
+  always {
+    display[7:0] = 8b11111111;
+    dataBOut[7:4] = b111;
+    y_out = 8b11100000;
+  
+    case(ran_num){
+    b00:
+      dataBOut[3:0] = b0000; //OBSTACLE ID
+      dataBOut[7:4] = b0000; //OBSTACLE SAFE LEFT
+      dataBOut[11:8] = b0011; //OBSTACLE SAFE RIGHT
+    
+      display[7:0] = 8b00011111;
+      
+    b01:
+      dataBOut[3:0] = b0001;
+      dataBOut[7:4] = b0011;
+      dataBOut[11:8] = b0111;
+    
+      display[7:0] = 8b11110001;
+
+    b10:
+      dataBOut[3:0] = b0010;
+      dataBOut[7:4] = b0010;
+      dataBOut[11:8] = b0101;
+    
+      display[7:0] = 8b11100111;
+    
+    b11:
+      dataBOut[3:0] = b0011;
+      dataBOut[7:4] = b0001;
+      dataBOut[11:8] = b0011;
+    
+      display[7:0] = 8b11011111;
+
+    default:
+      dataBOut[3:0] = b0000;
+      dataBOut[7:4] = b0000;
+      dataBOut[11:8] = b0011;
+    
+      display[7:0] = 8b00011111;
+    }
+    
+    //Y VALUE
+    case(ox4){
+    b0111:  y_out = 8b10000000;
+    b0110:  y_out = 8b01000000;
+    b0101:  y_out = 8b00100000;
+    b0100:  y_out = 8b00010000;
+    b0011:  y_out = 8b00001000;
+    b0010:  y_out = 8b00000100;
+    b0001:  y_out = 8b00000010;
+    b0000:  y_out = 8b00000001;
+    }
+  
+}
