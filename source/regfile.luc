@@ -1,0 +1,66 @@
+module regfile (
+    input clk,  // clock
+    input regID[4],
+    input dataIn[16],
+    input write_enable[1],
+    
+    output dataOutA[16], //Current Player Score, Player X-Location, Obstacle Cleared
+    output ox4[4], //Obstacle Y location
+    output ox5[4], //Obst Safe Left
+    output ox6[4], //Obst Safe Right
+    output ox7[1], //Temp Var
+    
+    output ox8[10] //High Score  
+
+  ) {
+  dff registers[9][16](.clk(clk));
+
+  
+  always {
+  //Update first if write_enable == 1 before outputting result for next clk cycle 
+    
+    if(write_enable == 1b1){
+    
+       //If special RegID 1111, write all obstacle data at once
+       case(regID){
+        b1111:
+         registers.d[3][3:0] = dataIn[3:0]; //Obstacle ID
+         registers.d[4][3:0] = dataIn[7:4]; //Obstacle Y-Location
+         registers.d[5][3:0] = dataIn[11:8]; //SafeLeft
+         registers.d[6][3:0] = dataIn[15:12]; //SafeRight
+        b0000:
+         registers.d[0] = dataIn[9:0]; //Player Score
+        b0001:
+         registers.d[1] = dataIn[3:0]; //Player X location 
+        b0011:
+         registers.d[3] = dataIn[3:0]; //Obstacle ID
+        b0100:
+         registers.d[4][3:0] = dataIn[3:0]; //Obstacle Y-Location
+        b0101:
+         registers.d[5][3:0] = dataIn[11:8]; //Safe Edge Left
+        b0110:
+         registers.d[6][3:0] = dataIn[15:12]; //Safe Edge Right
+        b0111:
+         registers.d[7][0:0] = dataIn[0:0]; //Temp Var 
+        b1000:
+         registers.d[8][9:0] = dataIn[9:0]; //High Score 
+       }
+       
+      }
+    
+    
+  //ALWAYS OUTPUT
+  //------------------------------------------
+    //Compressed data A outputs to avoid too many outputs
+    dataOutA[9:0] = registers.q[0][9:0]; //Current Player Score
+    dataOutA[13:10] = registers.q[1][3:0]; //Player X-Location
+    
+    //Other Outputs
+    ox4 = registers.q[4][3:0]; //Obstacle Y location
+    ox5 = registers.q[5][3:0]; //Obst Safe Left
+    ox6 = registers.q[6][3:0]; //Obst Safe Right
+    ox7 = registers.q[7][0:0]; //Temp Var
+    ox8 = registers.q[8][9:0]; //High Score    
+  //------------------------------------------
+    
+}

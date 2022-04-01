@@ -1,0 +1,86 @@
+module au_top (
+    input clk,              // 100MHz clock
+    input rst_n,            // reset button (active low)
+    output led [8],         // 8 user controllable LEDs
+    input usb_rx,           // USB->Serial input
+    output usb_tx,          // USB->Serial output    
+    output io_led [3][8],
+    
+    input io_dip [3][8]     // DIP switches on IO Shield
+    
+    //output y_value[8]
+  ) {
+  
+  sig rst;   // reset signal
+  
+  regfile reg(.clk(clk));
+  fsm_game gamefsm(.clk(clk), .rst(rst));
+  alu_full_sels alu16;
+  obstacle_library obs;
+  pn_gen pngen(.clk(clk));
+  
+  regfile regtest(.clk(clk));
+  
+  .clk(clk) {
+    // The reset conditioner is used to synchronize the reset signal to the FPGA
+    // clock. This ensures the entire FPGA comes out of reset at the same time.
+    reset_conditioner reset_cond;
+  }
+
+  
+  always {  
+  
+    pngen.seed = b111;
+      
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    rst = reset_cond.out;   // conditioned reset
+    usb_tx = usb_rx;        // loop serial port
+    
+    led = 8h00;             // turn LEDs off
+    
+    //REGFILE INPUTS
+    reg.regID = gamefsm.regID;
+    reg.dataIn = alu16.wdsel_out;
+    reg.write_enable = gamefsm.write_enable;
+    
+    //FSM INPUTS
+    gamefsm.left = b0;
+    gamefsm.right = b0;
+    gamefsm.ox7 = reg.ox7;
+    gamefsm.dataOutA = reg.dataOutA;
+    gamefsm.ox4 = reg.ox4;
+    
+    //ALU INPUTS
+    alu16.ox0 = gamefsm.ox0_out;
+    alu16.ox1 = gamefsm.ox1_out;
+    alu16.ox4 = gamefsm.ox4_out;
+    alu16.c = gamefsm.c;
+    alu16.ox5 = reg.ox5;
+    alu16.ox6 = reg.ox6;
+    alu16.obstacle_data = obs.dataBOut;
+    
+    alu16.alufn = gamefsm.alufn;
+    alu16.asel = gamefsm.asel;
+    alu16.bsel = gamefsm.bsel;
+    alu16.wdsel = gamefsm.wdsel;
+    
+    //PNGEN INPUTS
+    pngen.rst = gamefsm.random_reset;
+    pngen.next = gamefsm.random_next;
+    
+    //obstacle_library INPUTS
+    obs.ran_num = pngen.num[1:0];
+    obs.ox4 = gamefsm.ox4_out;
+    
+    
+    //io_led[0][7:0] = obs.y_out;
+    //io_led[1][3:0] = gamefsm.ox1_out;
+    //io_led[2][3:0] = reg.ox4;
+    regtest.regID = io_dip[0][3:0];
+    regtest.write_enable = io_dip[0][7];
+    regtest.dataIn = io_dip[2][3:0];
+    
+    io_led[0][3:0] = regtest.dataOutA[13:10];
+    io_led[1][7:0] = regtest.ox4;
+  }
+}
