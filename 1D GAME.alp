@@ -2,6 +2,7 @@
 <project name="1D GAME" board="Alchitry Au" language="Lucid" version="3">
   <files>
     <src>obstacle_library.luc</src>
+    <src>sevenseg_translate.luc</src>
     <src>randomgen.luc</src>
     <component>decoder.luc</component>
     <src>adder.luc</src>
@@ -21,6 +22,7 @@
     <src>alu_full_sels.luc</src>
     <component>pipeline.luc</component>
     <src>regfile.luc</src>
+    <src>betacpu.luc</src>
     <constraint>custom.acf</constraint>
     <constraint>custom.xdc</constraint>
   </files>

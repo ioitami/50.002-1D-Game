@@ -1,0 +1,92 @@
+module betacpu (
+    input clk,  // clock
+    input rst,  // reset
+    
+    input left[1],
+    input right[1],
+    
+    output player_x[4],
+    output y_loc[4],
+    
+    output x_display[8],
+    output y_view[8]
+  ) {
+
+  alu bitalu;
+  obstacle_library obs; 
+  
+  .clk(clk) {    
+    
+    .rst(rst){
+      regfile reg;
+      fsm_game gamefsm;
+      randomgen rantest;
+    }
+  }
+  
+  
+  always {
+    //FSM INPUTS
+    gamefsm.left = left;
+    gamefsm.right = right;
+    gamefsm.raout = reg.raOut;
+    gamefsm.rbout = reg.rbOut;
+    
+    //OBSTACLE LIBRARY UNIT INPUTS
+    obs.ox3 = reg.ox3;
+    obs.ox4 = reg.ox4;
+    obs.ran_num = rantest.out[3:0];
+    
+    //ALU INPUTS
+    
+    case(gamefsm.asel){
+      2b00:
+        bitalu.a = reg.raOut;
+      2b01:
+        bitalu.a = 1b0;
+      2b10:
+        bitalu.a = 2b11;
+      default:
+        bitalu.a = 0;
+    }
+    
+    case(gamefsm.bsel){
+      2b00:
+        bitalu.b = reg.rbOut;
+      2b01:
+        bitalu.b = 1b0;
+      2b10:
+        bitalu.b = 1b1;
+      2b11:
+        bitalu.b = 3b111;
+      default:
+        bitalu.b = 0;
+    }
+    
+    bitalu.alufn_signal = gamefsm.alufn;
+   
+    //WDSEL MULTIPLEXER
+    case(gamefsm.wdsel){
+      2b00:
+        reg.dataIn = bitalu.out;
+      2b01:
+        reg.dataIn = obs.dataBOut;
+      default:
+        reg.dataIn = 0;
+    }
+    
+    //REGFILE INPUTS
+    reg.write_enable = gamefsm.write_enable;
+    reg.regID = gamefsm.regID;
+    
+    reg.ra = gamefsm.ra;
+    reg.rb = gamefsm.rb;
+    
+    //OUTPUTS
+    player_x = reg.ox1;
+    y_loc = reg.ox4;
+    
+    x_display = obs.display;
+    y_view = obs.y_out;
+  }
+}

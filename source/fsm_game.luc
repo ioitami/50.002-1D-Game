@@ -1,0 +1,315 @@
+module fsm_game (
+    input clk,  // clock
+    input rst,  // reset
+    
+    input left[1],
+    input right[1],
+    
+    input raout[16],
+    input rbout[16],
+    
+    output write_enable[1],
+    output ra[4],
+    output rb[4],
+    output asel[2],
+    output bsel[2],
+    output wdsel[2],
+    output alufn[6],
+    output regID[4]
+  ) {
+  
+  const SLOWCLOCK_SIZE = 24;
+  
+  .clk(clk){
+     edge_detector slowClockEdge(#RISE(1), #FALL(0));
+    
+    .rst(rst){
+
+        counter slowClock(#SIZE(SLOWCLOCK_SIZE));  
+      
+        fsm controller = {S0, S1, S2, S2A, S3, S4, S4A, S4B, 
+            S5A, S5B, S6A, S6B, S7, S7A, S8, S8A, S9, S9A, S10, S11};    
+    }
+  }
+    
+
+  always {
+    slowClockEdge.in = slowClock.value[SLOWCLOCK_SIZE-1];
+           
+    //DEFAULT VALUES
+    write_enable = 0;
+    ra = 0;
+    rb = 0;
+    asel = 0;    
+    bsel = 0;
+    wdsel = 0;
+    alufn = 0;
+    regID = 0;
+    
+      case(controller.q){
+        //SET SCORE TO 0
+        //===============================
+        controller.S0: 
+        
+          write_enable = b1;
+          asel = b01;
+          bsel = b01;
+          wdsel = b00;
+          alufn = b000000;
+          regID = b0000;
+        
+          controller.d = controller.S1;
+        //===============================
+        
+        //WRITE DEFAULT X LOCATION
+        //===============================
+        controller.S1: 
+        
+          write_enable = b1;
+          asel = b10;
+          bsel = b01;
+          wdsel = b00;
+          alufn = b000000;
+          regID = b0001;
+
+          controller.d = controller.S2;
+        //===============================
+        
+        //WRITE HEIGHT TO 7 (TOPMOST)
+        //===============================
+        controller.S2: 
+        
+          write_enable = b1;
+          asel = b01;
+          bsel = b11;
+          wdsel = b00;
+          alufn = b000000;
+          regID = b0100;
+
+          controller.d = controller.S3;        
+        //=============================== 
+        
+        //GENERATE RANDOM OBSTACLE
+        //===============================
+        controller.S3: 
+        
+          write_enable = b1;
+          wdsel = b01;
+          regID = b1111;
+        
+          controller.d = controller.S4;
+        //=============================== 
+        
+        //CHECK BUTTON
+        //===============================
+        controller.S4: 
+              
+          if(slowClockEdge.out == b1 && left == b1 && right == b1){
+          controller.d = controller.S7;        
+        }
+          else if(slowClockEdge.out == b1 && left == b1){
+          controller.d = controller.S4A; 
+        }
+          else if(slowClockEdge.out == b1 && right == b1){
+          controller.d = controller.S4B; 
+        }
+          else if(slowClockEdge.out == b1){
+          controller.d = controller.S7; 
+        }
+        //=============================== 
+        
+        //MOVE PLAYER LEFT
+        //===============================
+        controller.S4A: 
+        
+          write_enable = b1;
+          ra = b0001;
+          asel = b00;
+          bsel = b10;
+          wdsel = b00;
+          alufn = b000001;
+          regID = b0001;
+
+          controller.d = controller.S5A;        
+        //=============================== 
+        
+        //MOVE PLAYER RIGHT
+        //===============================
+        controller.S4B: 
+        
+          write_enable = b1;
+          ra = b0001;
+          asel = b00;
+          bsel = b10;
+          wdsel = b00;
+          alufn = b000000;
+          regID = b0001;
+
+          controller.d = controller.S5A;        
+        //=============================== 
+        
+        //CHECK PLAYER LEFT
+        //===============================
+        controller.S5A: 
+        
+          write_enable = b1;
+          rb = b0001;
+          asel = b01;
+          bsel = b00;
+          wdsel = b00;
+          alufn = b110111;
+          regID = b0111;
+
+          controller.d = controller.S5B;        
+        //=============================== 
+        
+        //CHECK (TEMPVAR == 1)
+        //===============================
+        controller.S5B: 
+      
+          write_enable = b0;
+          ra = b0111;
+        
+          if(raout == b1){
+            controller.d = controller.S6A;
+          }
+          else{
+            controller.d = controller.S0;  
+          }      
+        //=============================== 
+        
+        //CHECK PLAYER RIGHT
+        //===============================
+        controller.S6A: 
+        
+          write_enable = b1;
+          ra = b0001;
+          asel = b00;
+          bsel = b11;
+          wdsel = b00;
+          alufn = b110111;
+          regID = b0111;
+
+          controller.d = controller.S6B;        
+        //=============================== 
+        
+        //CHECK (TEMPVAR == 1) ANOTHER TIME
+        //===============================
+        controller.S6B: 
+      
+          write_enable = b0;
+          ra = b0111;
+        
+          if(raout == b1){
+            controller.d = controller.S7;
+          }
+          else{
+            controller.d = controller.S0;  
+          }      
+        //=============================== 
+        
+        //OBSTACLE Y LOCATION -1
+        //===============================
+        controller.S7: 
+        
+          write_enable = b1;
+          ra = b0100;
+          asel = b00;
+          bsel = b10;
+          wdsel = b00;
+          alufn = b000001;
+          regID = b0100;
+
+          controller.d = controller.S7A;       
+        //=============================== 
+        
+        //CHECK Y == 0
+        //===============================
+        controller.S7A: 
+      
+          write_enable = b0;
+          ra = b0100;
+        
+          if(raout != b0){controller.d = controller.S4;}
+          else if(raout == b0){controller.d = controller.S8;}     
+        //=============================== 
+        
+        //CHECK PLAYER/OBSTACLE COLLISION LEFT
+        //===============================
+        controller.S8: 
+            
+          write_enable = b1;
+          ra = b0101;
+          rb = b0001;
+          asel = b00;
+          bsel = b00;
+          wdsel = b00;
+          alufn = b110101;
+          regID = b0111;
+        
+          controller.d = controller.S8A;       
+        //===============================
+        
+        //CHECK LEFT COLLISION == 1
+        //===============================
+        controller.S8A: 
+            
+          write_enable = b0;
+          ra = b0111;
+        
+          if(raout == b1){
+            controller.d = controller.S9;
+          }
+          else{
+            controller.d = controller.S0;  
+          }        
+        //===============================
+        
+        //CHECK PLAYER/OBSTACLE COLLISION RIGHT
+        //===============================
+        controller.S9: 
+            
+          write_enable = b1;
+          ra = b0001;
+          rb = b0110;
+          asel = b00;
+          bsel = b00;
+          wdsel = b00;
+          alufn = b110101;
+          regID = b0111;
+        
+          controller.d = controller.S9A;       
+        //===============================
+        
+        //CHECK RIGHT COLLISION == 1
+        //===============================
+        controller.S9A: 
+            
+          write_enable = b0;
+          ra = b0111;
+        
+          if(raout == b1){
+            controller.d = controller.S10;
+          }
+          else{
+            controller.d = controller.S0;  
+          }        
+        //===============================
+        
+        //SCORE +1
+        //===============================
+        controller.S10: 
+            
+          write_enable = b1;
+          ra = b0000;
+          asel = b00;
+          bsel = b10;
+          wdsel = b00;
+          alufn = b000000;
+          regID = b0000;
+        
+          controller.d = controller.S2;       
+        //===============================
+
+  }
+}

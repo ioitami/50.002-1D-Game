@@ -1,0 +1,103 @@
+module regfile (
+    input clk,  // clock
+    input rst,
+    input regID[4],
+    input dataIn[16],
+    input write_enable[1],
+    input ra[4],
+    input rb[4],
+    
+    output raOut[16], 
+    output rbOut[16],
+    
+    output ox0[10], //Player Score Output
+    output ox1[4], //Player Location Output
+    output ox3[4], //Obstacle ID
+    output ox4[4] //Obstacle Height Output
+    
+    //output ox8[10] //High Score  
+
+  ) {
+  .clk(clk){
+    .rst(rst){
+      dff ox0_playerscore[16];
+      dff ox1_playerXloc[16];
+      dff ox3_obsID[16];
+      dff ox4_Yloc[16];
+      dff ox5_safeleft[16];
+      dff ox6_saferight[16];
+      dff tempvar[16];   
+      dff highscore[16];  
+    }
+  }
+
+  
+  always {
+  //Update first if write_enable == 1 before outputting result for next clk cycle 
+    
+    if(write_enable == 1b1){
+    
+       //If special RegID 1111, write all obstacle data at once
+       case(regID){
+        b1111:
+         ox3_obsID.d[3:0] = dataIn[3:0]; //Obstacle ID
+
+         ox5_safeleft.d[3:0] = dataIn[11:8]; //SafeLeft
+         ox6_saferight.d[3:0] = dataIn[15:12]; //SafeRight
+        b0000:
+         ox0_playerscore.d = dataIn; //Player Score
+        b0001:
+         ox1_playerXloc.d = dataIn; //Player X location 
+        b0011:
+         ox3_obsID.d = dataIn; //Obstacle ID
+        b0100:
+         ox4_Yloc.d = dataIn; //Obstacle Y-Location
+        b0101:
+         ox5_safeleft.d = dataIn; //Safe Edge Left
+        b0110:
+         ox6_saferight.d = dataIn; //Safe Edge Right
+        b0111:
+         tempvar.d = dataIn; //Temp Var 
+        b1000:
+         highscore.d = dataIn; //High Score 
+       }
+       
+      }
+    //RA OUTPUT
+    case(ra){
+      b0000: raOut = ox0_playerscore.q;
+      b0001: raOut = ox1_playerXloc.q;
+      //b0010: raOut = registers.q[2]; UNUSED
+      b0011: raOut = ox3_obsID.q;
+      b0100: raOut = ox4_Yloc.q;
+      b0101: raOut = ox5_safeleft.q;
+      b0110: raOut = ox6_saferight.q;
+      b0111: raOut = tempvar.q;
+      b1000: raOut = highscore.q;
+      
+      default: raOut = 0;
+    }
+    
+    //RB OUTPUT
+    case(rb){
+      b0000: rbOut = ox0_playerscore.q;
+      b0001: rbOut = ox1_playerXloc.q;
+      //b0010: rbOut = registers.q[2]; UNUSED
+      b0011: rbOut = ox3_obsID.q;
+      b0100: rbOut = ox4_Yloc.q;
+      b0101: rbOut = ox5_safeleft.q;
+      b0110: rbOut = ox6_saferight.q;
+      b0111: rbOut = tempvar.q;
+      b1000: rbOut = highscore.q;
+      
+      default: rbOut = 0;
+    }
+    
+    ox0 = ox0_playerscore.q;
+    ox1 = ox1_playerXloc.q;
+    ox3 = ox3_obsID.q;
+    ox4 = ox4_Yloc.q;
+     
+  //------------------------------------------
+    
+}

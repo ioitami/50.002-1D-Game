@@ -1,0 +1,42 @@
+module randomgen #(
+SEED = 128h843233523a613966423b622562592c62: SEED.WIDTH == 128 && SEED[95:0] != 0
+    )
+
+  (    
+    input clk,
+    input rst,
+    output out[4]
+  ) {
+  
+  
+  .clk(clk){
+     edge_detector edge_rng;
+     edge_detector edge_seed;
+     dff seed[3];
+     dff numhold[4]; 
+    
+  .rst(rst){
+     counter slowerclock(#SIZE(10), #DIV(24));
+     pn_gen random_number;
+    }
+  }
+  
+  
+  always {
+      
+      out = b1111;
+      random_number.seed = seed.q;    
+    
+      edge_rng.in = slowerclock.value;
+      random_number.next = edge_rng.out;
+    
+      edge_seed.in = slowerclock.value;
+        
+      if(edge_seed.out){
+        seed.d = seed.q + 1;
+      }
+      numhold.d = random_number.num[3:0];
+      out = numhold.q;   
+                
+  }
+}
