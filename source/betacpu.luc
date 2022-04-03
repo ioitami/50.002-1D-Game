@@ -6,6 +6,7 @@ module betacpu (
     input right[1],
     
     output player_x[4],
+    output player_score[10],
     output y_loc[4],
     
     output x_display[8],
@@ -16,8 +17,14 @@ module betacpu (
   obstacle_library obs; 
   
   .clk(clk) {    
+  
+    edge_detector clock_detector(#RISE(1), #FALL(0));
     
     .rst(rst){
+      counter slowtimer_slow(#SIZE(1),#DIV(26)); //SlowClk
+      counter slowtimer_medium(#SIZE(1),#DIV(25)); //MediumClk
+      counter slowtimer_fast(#SIZE(1),#DIV(23)); //FastClk
+      
       regfile reg;
       fsm_game gamefsm;
       randomgen rantest;
@@ -26,19 +33,44 @@ module betacpu (
   
   
   always {
+
+    //SLOWCLOCK INPUTS
+    //Swap slowclk (make game faster) as the game progresses
+    //============================================
+    clock_detector.in = 0;
+    gamefsm.sclock = 0;
+    
+    if(reg.ox0 < b11){ //< 3
+      clock_detector.in = slowtimer_slow.value;
+      gamefsm.sclock = clock_detector.out;
+      }
+    else if(reg.ox0 >= b11 && reg.ox0 < b1010){ //< 3 and > 10
+      clock_detector.in = slowtimer_fast.value;
+      gamefsm.sclock = clock_detector.out;
+      }
+    else if(reg.ox0 >= b1010){ //> 10
+      clock_detector.in = slowtimer_medium.value;
+      gamefsm.sclock = clock_detector.out;
+      }
+    //============================================
+    
     //FSM INPUTS
+    //============================================
     gamefsm.left = left;
     gamefsm.right = right;
     gamefsm.raout = reg.raOut;
     gamefsm.rbout = reg.rbOut;
+    //============================================
     
     //OBSTACLE LIBRARY UNIT INPUTS
+    //============================================
     obs.ox3 = reg.ox3;
     obs.ox4 = reg.ox4;
     obs.ran_num = rantest.out[3:0];
-    
-    //ALU INPUTS
-    
+    //============================================
+       
+    //ALU INPUTS   
+    //============================================ 
     case(gamefsm.asel){
       2b00:
         bitalu.a = reg.raOut;
@@ -61,11 +93,12 @@ module betacpu (
         bitalu.b = 3b111;
       default:
         bitalu.b = 0;
-    }
-    
+    }    
     bitalu.alufn_signal = gamefsm.alufn;
+    //============================================
    
     //WDSEL MULTIPLEXER
+    //============================================
     case(gamefsm.wdsel){
       2b00:
         reg.dataIn = bitalu.out;
@@ -74,15 +107,20 @@ module betacpu (
       default:
         reg.dataIn = 0;
     }
+    //============================================
     
     //REGFILE INPUTS
+    //============================================
     reg.write_enable = gamefsm.write_enable;
     reg.regID = gamefsm.regID;
     
     reg.ra = gamefsm.ra;
     reg.rb = gamefsm.rb;
+    //============================================
     
-    //OUTPUTS
+    //>>>>>>>> BETACPU OUTPUTS <<<<<<<<<<
+    //============================================
+    player_score = reg.ox0;
     player_x = reg.ox1;
     y_loc = reg.ox4;
     

@@ -35,6 +35,7 @@ module au_top (
     beta.left = io_dip[0][1];
     
     io_led[0][3:0] = beta.player_x;
+    io_led[0][7:4] = beta.player_score;
     io_led[1][7:0] = beta.y_view;
     io_led[2][7:0] = beta.x_display;
     
