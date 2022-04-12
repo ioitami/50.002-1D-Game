@@ -1,6 +1,7 @@
 module fsm_game (
     input clk,  // clock
     input rst,  // reset
+    input sclock,
     
     input left[1],
     input right[1],
@@ -18,14 +19,10 @@ module fsm_game (
     output regID[4]
   ) {
   
-  const SLOWCLOCK_SIZE = 24;
   
   .clk(clk){
-     edge_detector slowClockEdge(#RISE(1), #FALL(0));
     
     .rst(rst){
-
-        counter slowClock(#SIZE(SLOWCLOCK_SIZE));  
       
         fsm controller = {S0, S1, S2, S2A, S3, S4, S4A, S4B, 
             S5A, S5B, S6A, S6B, S7, S7A, S8, S8A, S9, S9A, S10, S11};    
@@ -34,7 +31,6 @@ module fsm_game (
     
 
   always {
-    slowClockEdge.in = slowClock.value[SLOWCLOCK_SIZE-1];
            
     //DEFAULT VALUES
     write_enable = 0;
@@ -104,16 +100,16 @@ module fsm_game (
         //===============================
         controller.S4: 
               
-          if(slowClockEdge.out == b1 && left == b1 && right == b1){
+          if(sclock == b1 && left == b1 && right == b1){
           controller.d = controller.S7;        
         }
-          else if(slowClockEdge.out == b1 && left == b1){
+          else if(sclock == b1 && left == b1){
           controller.d = controller.S4A; 
         }
-          else if(slowClockEdge.out == b1 && right == b1){
+          else if(sclock == b1 && right == b1){
           controller.d = controller.S4B; 
         }
-          else if(slowClockEdge.out == b1){
+          else if(sclock == b1){
           controller.d = controller.S7; 
         }
         //=============================== 

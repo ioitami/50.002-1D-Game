@@ -42,8 +42,8 @@ module regfile (
         b1111:
          ox3_obsID.d[3:0] = dataIn[3:0]; //Obstacle ID
 
-         ox5_safeleft.d[3:0] = dataIn[11:8]; //SafeLeft
-         ox6_saferight.d[3:0] = dataIn[15:12]; //SafeRight
+         ox5_safeleft.d[3:0] = dataIn[7:4]; //SafeLeft
+         ox6_saferight.d[3:0] = dataIn[11:8]; //SafeRight
         b0000:
          ox0_playerscore.d = dataIn; //Player Score
         b0001:

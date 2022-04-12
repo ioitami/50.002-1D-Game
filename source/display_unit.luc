@@ -1,0 +1,162 @@
+module display_unit (
+   
+    input ran_num[3],
+    input ox3[4],
+    input ox4[4],
+    input ox1[3],
+    input ox0[10],
+    
+    output display[8],
+    output dataBOut[12],
+    output y_out[8],
+    
+    output x_out[8],
+    output sevenseg1[7],
+    output sevenseg2[7]
+  ) {
+  
+  //HARD CODED OBSTACLES
+  //---------------------------------
+  //ID = 0
+  const ID0 = b0000;
+  const ID0_LEFT = b0000;
+  const ID0_RIGHT = b0100;
+  const ID0_DISPLAY = 8b10001111;
+  
+  //ID = 1
+  const ID1 = b0001;
+  const ID1_LEFT = b0011;
+  const ID1_RIGHT = b0111;
+  const ID1_DISPLAY = 8b11110001;
+  
+  //ID = 2
+  const ID2 = b0010;
+  const ID2_LEFT = b0010;
+  const ID2_RIGHT = b0110;
+  const ID2_DISPLAY = 8b11100011;
+  
+  //ID = 3
+  const ID3 = b0011;
+  const ID3_LEFT = b0001;
+  const ID3_RIGHT = b0100;
+  const ID3_DISPLAY = 8b11001111;
+  
+  //ID = 4
+  const ID4 = b0100;
+  const ID4_LEFT = b0011;
+  const ID4_RIGHT = b1000;
+  const ID4_DISPLAY = 8b11110000;
+  
+  //ID = 5
+  const ID5 = b0101;
+  const ID5_LEFT = b0101;
+  const ID5_RIGHT = b1000;
+  const ID5_DISPLAY = 8b11111100;
+  
+  //ID = 6
+  const ID6 = b0110;
+  const ID6_LEFT = b0101;
+  const ID6_RIGHT = b0111;
+  const ID6_DISPLAY = 8b11111101;
+  
+  //ID = 7
+  const ID7 = b0111;
+  const ID7_LEFT = b0000;
+  const ID7_RIGHT = b0010;
+  const ID7_DISPLAY = 8b10111111;
+  
+  always {
+    display[7:0] = 0;
+    dataBOut = 0;
+    y_out = 0;
+    x_out = 0;
+  
+    case(ran_num){
+    b0000:
+      dataBOut[3:0] = ID0; //OBSTACLE ID
+      dataBOut[7:4] = ID0_LEFT; //OBSTACLE SAFE LEFT
+      dataBOut[11:8] = ID0_RIGHT; //OBSTACLE SAFE RIGHT
+      
+    b0001:
+      dataBOut[3:0] = ID1;
+      dataBOut[7:4] = ID1_LEFT;
+      dataBOut[11:8] = ID1_RIGHT;
+
+    b0010:
+      dataBOut[3:0] = ID2;
+      dataBOut[7:4] = ID2_LEFT;
+      dataBOut[11:8] = ID2_RIGHT;
+    
+    b0011:
+      dataBOut[3:0] = ID3;
+      dataBOut[7:4] = ID3_LEFT;
+      dataBOut[11:8] = ID3_RIGHT;
+        
+    b0100:
+      dataBOut[3:0] = ID4;
+      dataBOut[7:4] = ID4_LEFT;
+      dataBOut[11:8] = ID4_RIGHT;
+
+    b0101:
+      dataBOut[3:0] = ID5;
+      dataBOut[7:4] = ID5_LEFT;
+      dataBOut[11:8] = ID5_RIGHT;
+        
+    b0110:
+      dataBOut[3:0] = ID6;
+      dataBOut[7:4] = ID6_LEFT;
+      dataBOut[11:8] = ID6_RIGHT;
+        
+    b0111:
+      dataBOut[3:0] = ID7;
+      dataBOut[7:4] = ID7_LEFT;
+      dataBOut[11:8] = ID7_RIGHT;
+        
+    default:
+      dataBOut[3:0] = ID2;
+      dataBOut[7:4] = ID2_LEFT;
+      dataBOut[11:8] = ID2_RIGHT;    
+    }
+    
+    //CONVERT OBSTACLES INTO DISPLAY
+    case(ox3){
+    b0000:  display = ID0_DISPLAY;
+    b0001:  display = ID1_DISPLAY;
+    b0010:  display = ID2_DISPLAY;
+    b0011:  display = ID3_DISPLAY;
+    b0100:  display = ID4_DISPLAY;
+    b0101:  display = ID5_DISPLAY;  
+    b0110:  display = ID6_DISPLAY;
+    b0111:  display = ID7_DISPLAY;
+        
+    default:display = ID2_DISPLAY;
+    }
+    
+    //CONVERT Y OBSTACLE VALUE INTO DISPLAY
+    case(ox4){
+    b0111:  y_out = 8b00111111;
+    b0110:  y_out = 8b01011111;
+    b0101:  y_out = 8b01101111;
+    b0100:  y_out = 8b01110111;
+    b0011:  y_out = 8b01111011;
+    b0010:  y_out = 8b01111101;
+    b0001:  y_out = 8b01111110;
+    b0000:  y_out = 8b01111111;
+    }
+    
+    //CONVERT X-VALUE INTO PLAYER DISPLAY
+    case(ox1){
+      b000: x_out = 8b01111111;
+      b001: x_out = 8b10111111;
+      b010: x_out = 8b11011111;
+      b011: x_out = 8b11101111;
+      b100: x_out = 8b11110111;
+      b101: x_out = 8b11111011;
+      b110: x_out = 8b11111101;
+      b111: x_out = 8b11111110;
+    }
+    
+    //CONVERT SCORE INTO DISPLAY
+    sevenseg1 = ox0;
+    sevenseg2 = ox0;
+}
