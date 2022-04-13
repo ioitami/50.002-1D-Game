@@ -10,10 +10,11 @@ module regfile (
     output raOut[16], 
     output rbOut[16],
     
-    output ox0[10], //Player Score Output
+    output ox0[7], //Player Score Output
     output ox1[4], //Player Location Output
     output ox3[4], //Obstacle ID
-    output ox4[4] //Obstacle Height Output
+    output ox4[4], //Obstacle Height Output
+    output ox8[7] //Highscore Output
     
     //output ox8[10] //High Score  
 
@@ -26,8 +27,8 @@ module regfile (
       dff ox4_Yloc[16];
       dff ox5_safeleft[16];
       dff ox6_saferight[16];
-      dff tempvar[16];   
-      dff highscore[16];  
+      dff ox7_tempvar[16];   
+      dff ox8_highscore[16];  
     }
   }
 
@@ -57,9 +58,9 @@ module regfile (
         b0110:
          ox6_saferight.d = dataIn; //Safe Edge Right
         b0111:
-         tempvar.d = dataIn; //Temp Var 
+         ox7_tempvar.d = dataIn; //Temp Var 
         b1000:
-         highscore.d = dataIn; //High Score 
+         ox8_highscore.d = dataIn; //High Score 
        }
        
       }
@@ -72,8 +73,8 @@ module regfile (
       b0100: raOut = ox4_Yloc.q;
       b0101: raOut = ox5_safeleft.q;
       b0110: raOut = ox6_saferight.q;
-      b0111: raOut = tempvar.q;
-      b1000: raOut = highscore.q;
+      b0111: raOut = ox7_tempvar.q;
+      b1000: raOut = ox8_highscore.q;
       
       default: raOut = 0;
     }
@@ -87,8 +88,8 @@ module regfile (
       b0100: rbOut = ox4_Yloc.q;
       b0101: rbOut = ox5_safeleft.q;
       b0110: rbOut = ox6_saferight.q;
-      b0111: rbOut = tempvar.q;
-      b1000: rbOut = highscore.q;
+      b0111: rbOut = ox7_tempvar.q;
+      b1000: rbOut = ox8_highscore.q;
       
       default: rbOut = 0;
     }
@@ -97,6 +98,7 @@ module regfile (
     ox1 = ox1_playerXloc.q;
     ox3 = ox3_obsID.q;
     ox4 = ox4_Yloc.q;
+    ox8 = ox8_highscore.q;
      
   //------------------------------------------
     

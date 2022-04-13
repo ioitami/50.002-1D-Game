@@ -24,7 +24,7 @@ module fsm_game (
     
     .rst(rst){
       
-        fsm controller = {S0, S1, S2, S2A, S3, S4, S4A, S4B, 
+        fsm controller = {S0, S0A, S0B, S0C, S1, S2, S2A, S3, S4, S4A, S4B, 
             S5A, S5B, S6A, S6B, S7, S7A, S8, S8A, S9, S9A, S10, S11};    
     }
   }
@@ -43,9 +43,52 @@ module fsm_game (
     regID = 0;
     
       case(controller.q){
-        //SET SCORE TO 0
+        //CHECK IF SCORE > HIGHSCORE
         //===============================
         controller.S0: 
+        
+          write_enable = b1;
+          ra = b1000;
+          rb = b0000;
+          asel = b00;
+          bsel = b00;
+          wdsel = b00;
+          alufn = b110101;
+          regID = b0111;
+        
+          controller.d = controller.S0A;
+        //===============================
+        
+        //IF SCORE > HIGHSCORE
+        //===============================
+        controller.S0A: 
+      
+          write_enable = b0;
+          ra = b0111;
+        
+          if(raout == b1){controller.d = controller.S0B;}
+            
+          else{controller.d = controller.S0C;}     
+        //=============================== 
+        
+        //REPLACE HIGHSCORE WITH SCORE
+        //===============================
+        controller.S0B: 
+        
+          write_enable = b1;
+          ra = b0000;
+          asel = b00;
+          bsel = b01;
+          wdsel = b00;
+          alufn = b000000;
+          regID = b1000;
+        
+          controller.d = controller.S0C;
+        //===============================
+        
+        //SET SCORE TO 0
+        //===============================
+        controller.S0C: 
         
           write_enable = b1;
           asel = b01;

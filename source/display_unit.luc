@@ -1,19 +1,39 @@
 module display_unit (
-   
+    input clk,
+    input rst,
+    input sclock,
+    
     input ran_num[3],
     input ox3[4],
     input ox4[4],
     input ox1[3],
-    input ox0[10],
+    
+    input ox0[7], //SCORE
+    input ox8[7], //HIGHSCORE
     
     output display[8],
     output dataBOut[12],
     output y_out[8],
     
     output x_out[8],
-    output sevenseg1[7],
-    output sevenseg2[7]
+    output segscorelow[7],
+    output segscorehigh[7],
+    output seghighscorelow[7],
+    output seghighscorehigh[7]
+    
   ) {
+  //7-SEG CONVERTER
+  const ZERO = 7b1000000;
+  const ONE = 7b1111001;
+  const TWO = 7b0100100;
+  const THREE = 7b0110000;
+  const FOUR = 7b0011001;
+  const FIVE = 7b0010010;
+  const SIX = 7b0000010;
+  const SEVEN = 7b1111000;
+  const EIGHT = 7b0000000;
+  const NINE = 7b0011000;
+  const OFF = 7b1111111;
   
   //HARD CODED OBSTACLES
   //---------------------------------
@@ -65,7 +85,39 @@ module display_unit (
   const ID7_RIGHT = b0010;
   const ID7_DISPLAY = 8b10111111;
   
+
+  
+  .clk(clk){
+    .rst(rst){
+        dff valscore[7];
+        dff valhighscore[7];
+      
+        dff storescore[7];
+        dff storehighscore[7];
+      
+        fsm scoreloop = {S0, S1};
+        fsm highscoreloop = {S0, S1};
+      }
+    }
+  
+  sig lowbit_a[4];
+  sig highbit_a[4];
+  sig lowbit_b[4];
+  sig highbit_b[4];
+  
+  
   always {
+    
+    seghighscorelow = 0;
+    seghighscorehigh = 0;
+    segscorelow = 0;
+    segscorehigh = 0;
+    
+    lowbit_a = 0;
+    highbit_a = 0;
+    lowbit_b = 0;
+    highbit_b = 0;
+        
     display[7:0] = 0;
     dataBOut = 0;
     y_out = 0;
@@ -156,7 +208,109 @@ module display_unit (
       b111: x_out = 8b11111110;
     }
     
-    //CONVERT SCORE INTO DISPLAY
-    sevenseg1 = ox0;
-    sevenseg2 = ox0;
+    
+    //CONVERT BINARY SCORE INTO DECIMALS
+    if(sclock == b1){ //Update every clk cycle
+      valscore.d = ox0;
+      valhighscore.d = ox8;      
+      }     
+    
+    if(ox0 > b1001){
+      highbit_a = ox0 / b1010;
+    }  
+    else{highbit_a = b0;}
+
+        
+    if(ox8 > b1001){
+      highbit_b = ox8 / b1010;
+    }
+    else{highbit_b = b0;}
+    
+    
+    case(scoreloop.q){   
+    //WHILE LOOP   
+      scoreloop.S0:
+      
+        if(valscore.q < b1010){
+          lowbit_a = valscore.q;
+        }        
+        else if(valscore.q >= b1010){       
+          valscore.d = valscore.q - b1010; 
+                    
+          scoreloop.d = scoreloop.S0; 
+        } 
+    }
+    
+    case(highscoreloop.q){   
+    //WHILE LOOP   
+      highscoreloop.S0:
+      
+        if(valhighscore.q < b1010){
+          lowbit_b = valhighscore.q;
+        }        
+        else if(valhighscore.q >= b1010){       
+          valhighscore.d = valhighscore.q - b1010; 
+                    
+          highscoreloop.d = highscoreloop.S0; 
+        } 
+    }
+
+    
+    //CONVERT SCORES
+       case(lowbit_a){
+        b0000: segscorelow = ZERO;
+        b0001: segscorelow = ONE;
+        b0010: segscorelow = TWO;
+        b0011: segscorelow = THREE;
+        b0100: segscorelow = FOUR;
+        b0101: segscorelow = FIVE;
+        b0110: segscorelow = SIX;
+        b0111: segscorelow = SEVEN;
+        b1000: segscorelow = EIGHT;
+        b1001: segscorelow = NINE;
+      
+        default: segscorelow = OFF;
+      }
+      case(highbit_a){
+        b0000: segscorehigh = ZERO;
+        b0001: segscorehigh = ONE;
+        b0010: segscorehigh = TWO;
+        b0011: segscorehigh = THREE;
+        b0100: segscorehigh = FOUR;
+        b0101: segscorehigh = FIVE;
+        b0110: segscorehigh = SIX;
+        b0111: segscorehigh = SEVEN;
+        b1000: segscorehigh = EIGHT;
+        b1001: segscorehigh = NINE;
+      
+        default: segscorehigh = OFF;
+      }
+      case(lowbit_b){
+        b0000: seghighscorelow = ZERO;
+        b0001: seghighscorelow = ONE;
+        b0010: seghighscorelow = TWO;
+        b0011: seghighscorelow = THREE;
+        b0100: seghighscorelow = FOUR;
+        b0101: seghighscorelow = FIVE;
+        b0110: seghighscorelow = SIX;
+        b0111: seghighscorelow = SEVEN;
+        b1000: seghighscorelow = EIGHT;
+        b1001: seghighscorelow = NINE;
+      
+        default: seghighscorelow = OFF;
+      }
+      case(highbit_b){
+        b0000: seghighscorehigh = ZERO;
+        b0001: seghighscorehigh = ONE;
+        b0010: seghighscorehigh = TWO;
+        b0011: seghighscorehigh = THREE;
+        b0100: seghighscorehigh = FOUR;
+        b0101: seghighscorehigh = FIVE;
+        b0110: seghighscorehigh = SIX;
+        b0111: seghighscorehigh = SEVEN;
+        b1000: seghighscorehigh = EIGHT;
+        b1001: seghighscorehigh = NINE;
+      
+        default: seghighscorehigh = OFF;
+      }
 }

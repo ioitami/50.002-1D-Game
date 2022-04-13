@@ -4,12 +4,20 @@ module au_top (
     output led [8],         // 8 user controllable LEDs
     input usb_rx,           // USB->Serial input
     output usb_tx,          // USB->Serial output    
+    
     output io_led [3][8],
     output io_seg [8],      // 7-segment LEDs on IO Shield
     output io_sel [4],      // Digit select on IO Shield
     
     input io_button [5],    // 5 buttons on IO Shield
-    input io_dip [3][8]     // DIP switches on IO Shield
+    input io_dip [3][8],     // DIP switches on IO Shield
+    
+    input button_lr[2],
+    
+    output playerscore_low[7],
+    output playerscore_high[7],
+    output playerhighscore_low[7],
+    output playerhighscore_high[7]
     
     //output y_value[8]
   ) {
@@ -36,15 +44,24 @@ module au_top (
     io_seg = 8hff;          // turn segments off
     io_sel = ~4h1;           // select 1 digit
     
-    beta.right = io_button[4];
-    beta.left = io_button[3];
+    //beta.right = io_button[4];
+    beta.right = button_lr[0];
+    
+    //beta.left = io_button[3];
+    beta.left = button_lr[1];
     
     io_led[0][7:0] = beta.player_x;
     //io_led[0][7:4] = beta.player_score;
     io_led[1][7:0] = beta.y_view;
     io_led[2][7:0] = beta.x_display;
     
+    io_seg = beta.player_scorelow;
     
+    playerscore_low = beta.player_scorelow;
+    playerscore_high = beta.player_scorehigh;
+    
+    playerhighscore_low = beta.player_highscorelow;
+    playerhighscore_high = beta.player_highscorehigh;
 
   }
 }

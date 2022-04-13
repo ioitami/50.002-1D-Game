@@ -6,7 +6,10 @@ module betacpu (
     input right[1],
     
     output player_x[8],
-    output player_score[10],
+    output player_scorelow[7],
+    output player_scorehigh[7],
+    output player_highscorelow[7],
+    output player_highscorehigh[7],
     output y_loc[4],
     
     output x_display[8],
@@ -14,16 +17,18 @@ module betacpu (
   ) {
 
   alu bitalu;
-  display_unit display; 
+   
   
   .clk(clk) {    
   
     edge_detector clock_detector(#RISE(1), #FALL(0));
     
     .rst(rst){
+      display_unit display;
+      
       counter slowtimer_slow(#SIZE(1),#DIV(26)); //SlowClk
       counter slowtimer_medium(#SIZE(1),#DIV(25)); //MediumClk
-      counter slowtimer_fast(#SIZE(1),#DIV(23)); //FastClk
+      counter slowtimer_fast(#SIZE(1),#DIV(24)); //FastClk
       
       regfile reg;
       fsm_game gamefsm;
@@ -39,18 +44,22 @@ module betacpu (
     //============================================
     clock_detector.in = 0;
     gamefsm.sclock = 0;
+    display.sclock = 0;
     
     if(reg.ox0 < b11){ //< 3
       clock_detector.in = slowtimer_slow.value;
       gamefsm.sclock = clock_detector.out;
+      display.sclock = clock_detector.out;
       }
     else if(reg.ox0 >= b11 && reg.ox0 < b1010){ //< 3 and > 10
       clock_detector.in = slowtimer_medium.value;
       gamefsm.sclock = clock_detector.out;
+      display.sclock = clock_detector.out;
       }
     else if(reg.ox0 >= b1010){ //> 10
       clock_detector.in = slowtimer_fast.value;
       gamefsm.sclock = clock_detector.out;
+      display.sclock = clock_detector.out;
       }
     //============================================
     
@@ -68,6 +77,7 @@ module betacpu (
     display.ox1 = reg.ox1;
     display.ox3 = reg.ox3;
     display.ox4 = reg.ox4;
+    display.ox8 = reg.ox8;
     display.ran_num = rantest.out[3:0];
     //============================================
        
@@ -122,7 +132,11 @@ module betacpu (
     
     //>>>>>>>> BETACPU OUTPUTS <<<<<<<<<<
     //============================================
-    player_score = reg.ox0;
+    player_scorelow = display.segscorelow;
+    player_scorehigh = display.segscorehigh;
+    player_highscorelow = display.seghighscorelow;
+    player_highscorehigh = display.seghighscorehigh;
+    
     player_x = display.x_out;
     y_loc = reg.ox4;
     

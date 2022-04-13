@@ -72,6 +72,41 @@ pin io_button[2] B23 pulldown;
 pin io_button[3] B24 pulldown;
 pin io_button[4] C49 pulldown;
 
+pin button_lr[0] C2 pulldown;
+pin button_lr[1] C3 pulldown;
+
+pin playerscore_low[0] C28 pulldown;
+pin playerscore_low[1] C31 pulldown;
+pin playerscore_low[2] C34 pulldown;
+pin playerscore_low[3] C37 pulldown;
+pin playerscore_low[4] C40 pulldown;
+pin playerscore_low[5] C43 pulldown;
+pin playerscore_low[6] C46 pulldown;
+
+pin playerscore_high[0] C27 pulldown;
+pin playerscore_high[1] C30 pulldown;
+pin playerscore_high[2] C33 pulldown;
+pin playerscore_high[3] C36 pulldown;
+pin playerscore_high[4] C39 pulldown;
+pin playerscore_high[5] C42 pulldown;
+pin playerscore_high[6] C45 pulldown;
+
+pin playerhighscore_low[0] C23 pulldown;
+pin playerhighscore_low[1] C20 pulldown;
+pin playerhighscore_low[2] C17 pulldown;
+pin playerhighscore_low[3] C14 pulldown;
+pin playerhighscore_low[4] C11 pulldown;
+pin playerhighscore_low[5] C8 pulldown;
+pin playerhighscore_low[6] C5 pulldown;
+
+pin playerhighscore_high[0] C24 pulldown;
+pin playerhighscore_high[1] C21 pulldown;
+pin playerhighscore_high[2] C18 pulldown;
+pin playerhighscore_high[3] C15 pulldown;
+pin playerhighscore_high[4] C12 pulldown;
+pin playerhighscore_high[5] C9 pulldown;
+pin playerhighscore_high[6] C6 pulldown;
+
 pin io_sel[0] A9;
 pin io_sel[1] A8;
 pin io_sel[2] A42;
@@ -85,4 +120,3 @@ pin io_seg[4] A45;
 pin io_seg[5] A3;
 pin io_seg[6] A2;
 pin io_seg[7] A49;
-
