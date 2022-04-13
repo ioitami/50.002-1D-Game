@@ -26,9 +26,9 @@ module betacpu (
     .rst(rst){
       display_unit display;
       
-      counter slowtimer_slow(#SIZE(1),#DIV(26)); //SlowClk
-      counter slowtimer_medium(#SIZE(1),#DIV(25)); //MediumClk
-      counter slowtimer_fast(#SIZE(1),#DIV(24)); //FastClk
+      counter slowtimer_slow(#SIZE(1),#DIV(25)); //SlowClk
+      counter slowtimer_medium(#SIZE(1),#DIV(24)); //MediumClk
+      counter slowtimer_fast(#SIZE(1),#DIV(23)); //FastClk
       
       regfile reg;
       fsm_game gamefsm;
