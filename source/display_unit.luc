@@ -198,14 +198,14 @@ module display_unit (
     
     //CONVERT X-VALUE INTO PLAYER DISPLAY
     case(ox1){
-      b000: x_out = 8b01111111;
-      b001: x_out = 8b10111111;
-      b010: x_out = 8b11011111;
-      b011: x_out = 8b11101111;
-      b100: x_out = 8b11110111;
-      b101: x_out = 8b11111011;
-      b110: x_out = 8b11111101;
-      b111: x_out = 8b11111110;
+      b000: x_out = 8b10000000;
+      b001: x_out = 8b01000000;
+      b010: x_out = 8b00100000;
+      b011: x_out = 8b00010000;
+      b100: x_out = 8b00001000;
+      b101: x_out = 8b00000100;
+      b110: x_out = 8b00000010;
+      b111: x_out = 8b00000001;
     }
     
     
