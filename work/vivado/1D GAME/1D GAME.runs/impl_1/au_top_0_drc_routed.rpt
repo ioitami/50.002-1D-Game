@@ -1,0 +1,41 @@
+Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2021.2 (win64) Build 3367213 Tue Oct 19 02:48:09 MDT 2021
+| Date         : Sat Apr 16 14:43:21 2022
+| Host         : DESKTOP-0HMFHEF running 64-bit major release  (build 9200)
+| Command      : report_drc -file au_top_0_drc_routed.rpt -pb au_top_0_drc_routed.pb -rpx au_top_0_drc_routed.rpx
+| Design       : au_top_0
+| Device       : xc7a35tftg256-1
+| Speed File   : -1
+| Design State : Fully Routed
+------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: design_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max violations: <unlimited>
+             Violations found: 1
++----------+----------+--------------------------------+------------+
+| Rule     | Severity | Description                    | Violations |
++----------+----------+--------------------------------+------------+
+| CFGBVS-3 | Warning  | CONFIG_VOLTAGE Design Property | 1          |
++----------+----------+--------------------------------+------------+
+
+2. REPORT DETAILS
+-----------------
+CFGBVS-3#1 Warning
+CONFIG_VOLTAGE Design Property  
+The CONFIG_VOLTAGE property is not set for current_design. To indicate what the configuration bank VCCO will be, the CONFIG_VOLTAGE property must be set to 1.5, 1.8, 2.5, 3.3.  Refer to device configuration user guide for more information.
+Related violations: <none>
+
+
